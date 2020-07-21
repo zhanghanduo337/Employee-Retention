@@ -1,3 +1,4 @@
+setwd('/Users/zhanghanduo/Desktop/data/employee\ retention')
 rm(list = ls())
 library(dplyr)
 library(ggplot2)
@@ -11,7 +12,7 @@ library(caret)
 ############################################################################################################
 ### import data
 
-df = read.csv('/Users/zhanghanduo/Desktop/data/employee_retention_data.csv')
+df = read.csv('employee_retention_data.csv')
 attach(df)
 #############################exploratory data analysis
 
@@ -24,7 +25,7 @@ df$employee_id = as.factor(df$employee_id)
 summary(df) # not quit :11192, 45.3%
 cor(seniority,salary) #0.5594652
 
-plot(df$seniority)#2 outliers 
+plot(df$seniority,main = 'seniority',xlab = 'index',ylab = 'seniority')#2 outliers 
 sort(unique(df$seniority),decreasing = T)#having a working experience of 90+ is impossible
 df = df[seniority<30,]#removing outliers
 
@@ -76,10 +77,10 @@ headcount = headcount[,c(1,2,7)] #final version
 
 ###########################Feature engineering
 op = par(mfrow=c(2, 2))
-plot(headcount[headcount$company_id ==1,c(1,3)],type = 'l')
-plot(headcount[headcount$company_id ==3,c(1,3)],type = 'l')
-plot(headcount[headcount$company_id ==5,c(1,3)],type = 'l')
-plot(headcount[headcount$company_id ==7,c(1,3)],type = 'l')
+plot(headcount[headcount$company_id ==1,c(1,3)],type = 'l',xlab = 'date',ylab = 'headcount',main = 'headcount_cpn1')
+plot(headcount[headcount$company_id ==3,c(1,3)],type = 'l',xlab = 'date',ylab = 'headcount',main = 'headcount_cpn3')
+plot(headcount[headcount$company_id ==5,c(1,3)],type = 'l',xlab = 'date',ylab = 'headcount',main = 'headcount_cpn5')
+plot(headcount[headcount$company_id ==7,c(1,3)],type = 'l',xlab = 'date',ylab = 'headcount',main = 'headcount_cpn7')
 #four random companies headcount plot over the course of 5 years
 #There is an indication of another seansonality where employees tend
 #to quit in the beginning of the year. Additionally, companies have less
@@ -87,27 +88,31 @@ plot(headcount[headcount$company_id ==7,c(1,3)],type = 'l')
 
 op2 = par(mfrow=c(2, 2))
 plot(headcount[(headcount$company_id ==1)&
-                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l')
+                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l',
+     xlab = 'date',ylab = 'headcount',main = 'headcount_cpn1')
 plot(headcount[(headcount$company_id ==3)&
-                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l')
+                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l',
+     xlab = 'date',ylab = 'headcount',main = 'headcount_cpn3')
 plot(headcount[(headcount$company_id ==5)&
-                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l')
+                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l',
+     xlab = 'date',ylab = 'headcount',main = 'headcount_cpn5')
 plot(headcount[(headcount$company_id ==7)&
-                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l')
+                 (headcount$date<as.Date('2012-01-01')),c(1,3)],type = 'l',
+     xlab = 'date',ylab = 'headcount',main = 'headcount_cpn7')
 #four random companies headcount plot over the course of 1 year
 #There is an indication of another seansonality where employees tend
 #to quit in the middle of the year
-
+par(mfrow=c(1,1))
 df$hiring_length = as.numeric(df$quit_date-df$join_date)
-hist(df$hiring_length,breaks = 200) #seasonality
+hist(df$hiring_length,breaks = 200,xlab = 'hiring_length',ylab = 'frequency',main = 'hiring_length') #seasonality
 
 df$quitweek = as.numeric(strftime(df$quit_date,format = '%U'))
-hist(df$quitweek,breaks = 53)#beginning of the year and middle of the year
+hist(df$quitweek,breaks = 53,,xlab = 'wk_of_yr',ylab = 'frequency',main = 'quit_week')#beginning of the year and middle of the year
 
 df$now = df$quit_date 
 df$now[is.na(df$now)] = as.Date('2015-12-15')
 df$hiring_length = as.numeric(df$now-df$join_date)
-#if quit then quit_date-join_date, iif not '2015-12-15'-join_date, 
+#if quit then quit_date-join_date, if not '2015-12-15'-join_date, 
 #'2015-12-15'indicates the present time
 
 df$if_quit = 1
@@ -120,7 +125,7 @@ df$if_quit[is.na(df$quit_date)]=0
 library(randomForest)
 set.seed(1)
 train = sample(1:nrow(df),nrow(df)*2/3)
-df_temp = df[,c(2,3,4,5,9,10)]
+df_temp = df[,c(2,3,4,5,8,11)]
 df_temp$if_quit = as.factor(df_temp$if_quit)
 rf.quit = randomForest(if_quit~.,data = df_temp,subset = train,
                        mtry = 4,importance = TRUE)
@@ -187,6 +192,7 @@ boosted.quit = gbm(if_quit~.,data = df_temp[train,], n.trees  = 5000,
                    distribution = 'bernoulli',
                    interaction.depth = 4, 
                    shrinkage = 0.1, verbose = T)
+summary(boosted.quit)
 quit_pred_boosted = predict(boosted.quit,df[-train,],n.trees = 5000)
 boosted_quit= rep(0,nrow(df[-train,]))
 boosted_quit[quit_pred_boosted>0.5]=1
@@ -194,11 +200,11 @@ table(boosted_quit,df[-train,]$if_quit)
 mean(boosted_quit==df[-train,]$if_quit) # error rate is 8.5%
 mean((quit_pred_boosted-df[-train,]$if_quit))^2 # test MSE: 0.05
 
-op3 = par(mfrow=c(2, 2))
-plot(boosted.quit, i = 'hiring_length')
-plot(boosted.quit, i = 'salary')
-plot(boosted.quit, i = 'seniority')
-plot(boosted.quit, i = 'dept')
+par(mfrow=c(1, 1))
+plot(boosted.quit, i = 'hiring_length',xlab = 'hiring_length',ylab = 'importance',main ='partial dependence plot hl' )
+plot(boosted.quit, i = 'salary',xlab = 'salary',ylab = 'importance',main ='partial dependence plot slry' )
+plot(boosted.quit, i = 'seniority',xlab = 'seniority',ylab = 'importance',main ='partial dependence plot snty' )
+plot(boosted.quit, i = 'dept',ylab = 'importance',main ='partial dependence plot dept' )
 #CONCLUSION: after comparing boosted trees and tuned random forest
 #although both are rather accurate, the boosted trees model has
 #slight edge on accuracy. 
