@@ -21,7 +21,7 @@ I looked at the distribution the data and the values counts for the various nume
 
 
 ## Random Forest
-Some highlights from random forest model.
+Some highlights from **tuning** random forest model. **(improve the accuracy by 4.3%)**
 
 ![variable importance plot](variable_importance_plot_after_tune.png)
 
