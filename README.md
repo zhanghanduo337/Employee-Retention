@@ -1,5 +1,5 @@
 # Employee-Retention
-Analyze main factors driven employee churn
+Analyze main factors driven employee churn & random forest model tuning
 
 ## Challenge Description
 We got employee data from a few companies. We have data about all employees who joined from 2011/01/24 to 2015/12/13. For each employee, we also know if they are still at the company as of 2015/12/13 or they have quit. Beside that, we have general info about the employee, such as avg salary during her tenure, dept, and yrs of experience.
