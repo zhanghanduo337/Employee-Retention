@@ -11,3 +11,34 @@ As said above, the goal is to predict employee retention and understand its main
 
 Note:
 comments are embedded in the code file
+
+## EDA
+I looked at the distribution the data and the values counts for the various numeric and categorical variables. Below are some highlights discoveries from the table. 
+
+![Hiring length](hiring_length.png) 
+![headcount of random companies over 5 years](headcount_over_5_years.png)
+![headcount of random companies over 1 year](headcount_over_1_year.png)
+
+
+## Random Forest
+Some highlights from random forest model.
+
+![variable importance plot](variable_importance_plot_after_tune.png)
+
+## Boosted Trees
+Some highlights from boosted trees model.
+
+![partial dependence plot for 'dept'](partial_dependence_plot_dept.png)
+![partial dependence plot for 'salary'](partial_dependence_plot_slry.png)
+![partial dependence plot for 'seniority'](partial_dependence_plot_snty.png)
+
+## CONCLUSION: 
+hiring length and salary is the main factor drive 
+employees to quit and leave. Reasonably, company always has more 
+budget to hire new staff and people tend to have a clear cut off 
+point when they plan to leave in their mind, for example, one year 
+or one year and half seems to be the good period of time for people 
+to age and feel the company culture. Additionally, employees at customer
+service seems to have a rather strong motivation to leave, whereas
+employees at data science dept tend to have longer retention, although
+dept has relatively lower marginal effect.
